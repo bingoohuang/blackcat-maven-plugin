@@ -1,6 +1,6 @@
 package com.github.bingoohuang.blackcat.maven;
 
-import com.github.bingoohuang.blackcat.maven.instrument.BlackcatInstrumenter;
+import com.github.bingoohuang.blackcat.maven.instrument.BlackcatTransformer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -39,7 +39,7 @@ public class InstrumentCompilerMojo extends AbstractMojo {
     private Set<String> instrumentExcludes = new HashSet<String>();
 
     public void execute() throws MojoExecutionException {
-        new BlackcatInstrumenter()
+        new BlackcatTransformer()
                 .instrument(outputDirectory, instrumentIncludes, instrumentExcludes);
     }
 }

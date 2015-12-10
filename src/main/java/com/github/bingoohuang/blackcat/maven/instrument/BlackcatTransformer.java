@@ -23,7 +23,7 @@ import java.util.Set;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
-public class BlackcatInstrumenter {
+public class BlackcatTransformer {
     private static final Set<String> sourceIncludesDefault = Collections.singleton("*");
     private static final Set<String> sourceExcludesDefault = Collections.EMPTY_SET;
     private static final String wildcardPattern = "*/*";
