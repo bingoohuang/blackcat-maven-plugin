@@ -1,19 +1,3 @@
-/*
- * Copyright 2002-2014 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.github.bingoohuang.blackcat.maven.utils;
 
 import java.util.*;
@@ -317,7 +301,7 @@ public class AntPathMatcher implements PathMatcher {
      * @return the tokenized path parts
      */
     protected String[] tokenizePath(String path) {
-        return StringUtils.tokenizeToStringArray(path, this.pathSeparator, this.trimTokens, true);
+        return Utils.tokenizeToStringArray(path, this.pathSeparator, this.trimTokens, true);
     }
 
     /**
@@ -382,8 +366,8 @@ public class AntPathMatcher implements PathMatcher {
      */
     @Override
     public String extractPathWithinPattern(String pattern, String path) {
-        String[] patternParts = StringUtils.tokenizeToStringArray(pattern, this.pathSeparator, this.trimTokens, true);
-        String[] pathParts = StringUtils.tokenizeToStringArray(path, this.pathSeparator, this.trimTokens, true);
+        String[] patternParts = Utils.tokenizeToStringArray(pattern, this.pathSeparator, this.trimTokens, true);
+        String[] pathParts = Utils.tokenizeToStringArray(path, this.pathSeparator, this.trimTokens, true);
         StringBuilder builder = new StringBuilder();
         boolean pathStarted = false;
 
@@ -433,13 +417,13 @@ public class AntPathMatcher implements PathMatcher {
      */
     @Override
     public String combine(String pattern1, String pattern2) {
-        if (!StringUtils.hasText(pattern1) && !StringUtils.hasText(pattern2)) {
+        if (!Utils.hasText(pattern1) && !Utils.hasText(pattern2)) {
             return "";
         }
-        if (!StringUtils.hasText(pattern1)) {
+        if (!Utils.hasText(pattern1)) {
             return pattern2;
         }
-        if (!StringUtils.hasText(pattern2)) {
+        if (!Utils.hasText(pattern2)) {
             return pattern1;
         }
 

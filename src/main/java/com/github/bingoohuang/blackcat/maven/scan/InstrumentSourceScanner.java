@@ -9,9 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class InstrumentSourceScanner extends AbstractSourceInclusionScanner {
-
     private final Set<String> sourceIncludes;
-
     private final Set<String> sourceExcludes;
 
     public InstrumentSourceScanner() {
