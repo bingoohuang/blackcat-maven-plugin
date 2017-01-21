@@ -2,7 +2,6 @@ package com.github.bingoohuang.blackcat.maven.instrument;
 
 import com.alibaba.fastjson.JSON;
 import com.github.bingoohuang.blackcat.javaagent.instrument.BlackcatInstrument;
-import com.github.bingoohuang.blackcat.javaagent.utils.Tuple;
 import com.github.bingoohuang.blackcat.maven.scan.InstrumentSourceScanner;
 import com.github.bingoohuang.blackcat.maven.utils.AntPathMatcher;
 import com.google.common.base.Strings;
@@ -13,35 +12,32 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
-import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.EMPTY_SET;
+import static java.util.Collections.singleton;
 
 public class BlackcatTransformer {
-    static final Set<String> sourceIncludesDefault = Collections.singleton("*");
-    static final Set<String> sourceExcludesDefault = Collections.EMPTY_SET;
-    static final String wildcardPattern = "*/*";
-    static final String sourceFileEnding = ".class";
     static final AntPathMatcher matcher = new AntPathMatcher();
     static final Log log = new SystemStreamLog();
 
     @SneakyThrows
     public void instrument(File sourceDir,
-                           Set<String> sourceIncludes,
-                           Set<String> sourceExcludes) {
-        val includes = parseSources(sourceIncludes.isEmpty() ? sourceIncludesDefault : sourceIncludes);
-        val excludes = parseSources(sourceExcludes == null ? sourceExcludesDefault : sourceExcludes);
+                           Set<String> srcIncludes,
+                           Set<String> srcExcludes) {
+        val incSet = srcIncludes.isEmpty() ? singleton("*") : srcIncludes;
+        val includes = parseSources(incSet);
+        val excSet = srcExcludes == null ? (Set<String>) EMPTY_SET : srcExcludes;
+        val excludes = parseSources(excSet);
 
-        String sourceBasePath = sourceDir.getCanonicalPath() + "/";
-        SourceInclusionScanner scanner = new InstrumentSourceScanner(
-                includes.keySet(), Collections.EMPTY_SET);
-        Set<File> sources = scanner.getIncludedSources(sourceDir, null);
-        for (File source : sources) {
+        val sourceBasePath = sourceDir.getCanonicalPath() + "/";
+        val scanner = new InstrumentSourceScanner(includes.keySet(), EMPTY_SET);
+        val sources = scanner.getIncludedSources(sourceDir, null);
+        for (val source : sources) {
             processSource(includes, excludes, sourceBasePath, source);
         }
     }
@@ -50,36 +46,39 @@ public class BlackcatTransformer {
                                Multimap<String, String> excludes,
                                String sourceBasePath,
                                File source) throws IOException {
-        String sourceRelativePath = source.getCanonicalPath()
-                .substring(sourceBasePath.length());
+        String canonicalPath = source.getCanonicalPath();
+        int srcBasePathLen = sourceBasePath.length();
+        String srcRelativePath = canonicalPath.substring(srcBasePathLen);
 
         Set<String> includesSet = newHashSet();
         for (String includeKey : includes.keySet()) {
-            if (!matcher.match(includeKey, sourceRelativePath)) continue;
+            if (!matcher.match(includeKey, srcRelativePath)) continue;
 
             includesSet.addAll(includes.get(includeKey));
         }
 
         Set<String> excludesSet = newHashSet();
         for (String excludeKey : excludes.keySet()) {
-            if (!matcher.match(excludeKey, sourceRelativePath)) continue;
+            if (!matcher.match(excludeKey, srcRelativePath)) continue;
 
             if (excludes.containsEntry(excludeKey, "*")) return;
             excludesSet.addAll(excludes.get(excludeKey));
         }
 
-        doInstrument(source, sourceRelativePath, includesSet, excludesSet);
+        doInstrument(source, srcRelativePath, includesSet, excludesSet);
     }
 
-    private void doInstrument(File source, String sourceRelativePath,
-                              Set<String> includesSet, Set<String> excludesSet)
+    private void doInstrument(File source,
+                              String srcRelativePath,
+                              Set<String> includesSet,
+                              Set<String> excludesSet)
             throws IOException {
         byte[] classfileBuffer = Files.toByteArray(source);
         val blackcatInst = new BlackcatInstrument(classfileBuffer);
-        Tuple<Boolean, byte[]> result = blackcatInst.modifyClass();
+        val result = blackcatInst.modifyClass();
         if (result.x) {
             Files.write(result.y, source);
-            log.info("Instrument class:" + sourceRelativePath
+            log.info("Instrument class:" + srcRelativePath
                     + ", include:" + JSON.toJSONString(includesSet)
                     + ", exclude:" + JSON.toJSONString(excludesSet));
         }
@@ -93,7 +92,7 @@ public class BlackcatTransformer {
 
             String key = split[0].replaceAll("\\.", "/")
                     + ("*".equals(split[0]) || split[0].endsWith("/*")
-                    ? wildcardPattern : "") + sourceFileEnding;
+                    ? "*/*" : "") + ".class";
             String value = split.length < 2 ? "*" : split[1];
 
             result.put(key, value);
