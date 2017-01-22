@@ -1,7 +1,7 @@
 package com.github.bingoohuang.blackcat.maven.instrument;
 
 import com.alibaba.fastjson.JSON;
-import com.github.bingoohuang.blackcat.javaagent.instrument.BlackcatInstrument;
+import com.github.bingoohuang.blackcat.instrument.instrument.BlackcatInstrument;
 import com.github.bingoohuang.blackcat.maven.scan.InstrumentSourceScanner;
 import com.github.bingoohuang.blackcat.maven.utils.AntPathMatcher;
 import com.google.common.base.Strings;
