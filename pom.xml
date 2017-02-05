@@ -7,7 +7,7 @@
     </parent>
     <groupId>com.github.bingoohuang</groupId>
     <artifactId>blackcat-maven-plugin</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>blackcat-maven-plugin</name>
